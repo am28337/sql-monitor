@@ -14,6 +14,7 @@
                 $LogFilePath:   Filepath of log file. File path will be $OutputFilePath + sqlmonitor-YYYYMMDD.log
                 $ExcelFilePath: Filepath of excel file. File path will be $OutputFilePath + sqlmonitor-YYYYMM.
                 $ComputerName:  List of Server names to be Health Checked or Monitored. List taken from $ServerList file.
+                $Email:         Declare if an email should be sent containing the results.  Values can be 'yes' or 'no'.  Default is to not send an email.
                 $EmailFrom:     Provide an email address to send the log/excel file from.
                 $EmailTo:       Provide an email address to send the log/excel file to.
                 $EmailSMTP:     Provide the SMTP server to the email from.
@@ -54,6 +55,12 @@ Param (
     )]
     [String] $ServerList = ".\sql-monitor-serverlist.txt",
 
+    <# $Email #>
+    [Parameter(
+        HelpMessage = "Declare if an email should be sent containing the results.  Values can be 'yes' or 'no'.  Default is to not send an email."
+    )]
+    [String] $Email = "No",
+
     <# $EmailFrom #>
     [Parameter(
         HelpMessage = "Provide an email address to send the log/excel file from."
@@ -77,7 +84,7 @@ Param (
 $LogFilePath = $OutputFilePath + "sqlmonitor-" + (Get-Date).ToString("yyyyMMdd") + ".log"
 
 <# $ExcelFilePath #>
-$ExcelFilePath = $OutputFilePath + "sqlmonitor-" + (Get-Date).ToString("yyyyMM") + ".xls"
+$ExcelFilePath = $OutputFilePath + "sqlmonitor-" + (Get-Date).ToString("yyyyMM") + ".xlsx"
 
 <# ComputerName #>
 $ComputerName = Get-Content -Path $ServerList
@@ -96,6 +103,7 @@ Function Set-ScreenLog-Header {
     "ServerList: $ServerList" | Update-ScreenLog
     "Log Filepath: $LogFilePath" | Update-ScreenLog
     "Excel Filepath: $ExcelFilePath" | Update-ScreenLog
+    "Computer Name: $ComputerName" | Update-ScreenLog
     "EmailFrom: $EmailFrom" | Update-ScreenLog
     "EmailTo: $EmailTo" | Update-ScreenLog
     "EmailSMTP: $EmailSMTP" | Update-ScreenLog
@@ -126,7 +134,7 @@ Function Set-ScreenLog-Footer {
 }
 
 <# Clear the terminal window if necessary. #>
-Clear-Host
+#Clear-Host
 
 <# Close $ExcelFilePath file if open. If we don't, ImportExcel won't save the new data. #>
 If (Test-Path -Path $ExcelFilePath) {
@@ -319,7 +327,7 @@ If (($Monitor -eq "ag-info" ) -or ($Monitor -eq "all")) {
 If (($HealthCheck -eq "server-info" ) -or ($HealthCheck -eq "all")) {
     If ($OutputType -eq "screen") {
         "" | Update-ScreenLog
-        "HealthCheck: server-info" | Update-ScreenLog
+        "*** HealthCheck: server-info ***" | Update-ScreenLog
         "Server name, Internet Protocol (IP) address, Operating System (OS) version, number of Central Processing Unit (CPU) cores," | Update-ScreenLog 
         "amount of Random Access Memory (RAM) in Gigabytes (GB)." | Update-ScreenLog
         Get-DbaComputerSystem -ComputerName "LAPTOP-0001" | `
@@ -330,7 +338,7 @@ If (($HealthCheck -eq "server-info" ) -or ($HealthCheck -eq "all")) {
             Format-Table
     } ElseIf ($OutputType -eq "log") {
         "" | Update-ScreenLog
-        "HealthCheck: server-info" | Update-ScreenLog
+        "*** HealthCheck: server-info ***" | Update-ScreenLog
         "Server name, Internet Protocol (IP) address, Operating System (OS) version, number of Central Processing Unit (CPU) cores," | Update-ScreenLog 
         "amount of Random Access Memory (RAM) in Gigabytes (GB)." | Update-ScreenLog
         Get-DbaComputerSystem -ComputerName "LAPTOP-0001" | `
@@ -351,7 +359,7 @@ If (($HealthCheck -eq "server-info" ) -or ($HealthCheck -eq "all")) {
 If (($HealthCheck -eq "volume-info" ) -or ($HealthCheck -eq "all")) {
     If ($OutputType -eq "screen") {
         "" | Update-ScreenLog
-        "HealthCheck: volume-info" | Update-ScreenLog 
+        "*** HealthCheck: volume-info ***" | Update-ScreenLog 
         "For each disk drive on the server, its drive letter, its size in GB, the amount of free space in GB, the amount of used" | Update-ScreenLog 
         "space in GB, the percentage of space used, the disk format bytes per cluster." | Update-ScreenLog
         
@@ -362,7 +370,7 @@ If (($HealthCheck -eq "volume-info" ) -or ($HealthCheck -eq "all")) {
             Format-Table
     } ElseIf ($OutputType -eq "log") {
         "" | Update-ScreenLog
-        "HealthCheck: volume-info" | Update-ScreenLog 
+        "*** HealthCheck: volume-info ***" | Update-ScreenLog 
         "For each disk drive on the server, its drive letter, its size in GB, the amount of free space in GB, the amount of used" | Update-ScreenLog 
         "space in GB, the percentage of space used, the disk format bytes per cluster." | Update-ScreenLog
         
@@ -384,7 +392,7 @@ If (($HealthCheck -eq "volume-info" ) -or ($HealthCheck -eq "all")) {
 If (($HealthCheck -eq "sql-info" ) -or ($HealthCheck -eq "all")) {
     If ($OutputType -eq "screen") {
         "" | Update-ScreenLog
-        "HealthCheck: sql-info" | Update-ScreenLog 
+        "*** HealthCheck: sql-info ***" | Update-ScreenLog 
         "SQL Server name, SQL instance name, SQL Server version, installed SQL Server components, installed SQL Server services," | Update-ScreenLog 
         "the maximum amount of memory set in GB, the modes of authentication enabled, the level of auditing enabled." | Update-ScreenLog
 
@@ -396,7 +404,7 @@ If (($HealthCheck -eq "sql-info" ) -or ($HealthCheck -eq "all")) {
             Format-Table
     } ElseIf ($OutputType -eq "log") {
         "" | Update-ScreenLog
-        "HealthCheck: sql-info" | Update-ScreenLog 
+        "*** HealthCheck: sql-info ***" | Update-ScreenLog 
         "SQL Server name, SQL instance name, SQL Server version, installed SQL Server components, installed SQL Server services," | Update-ScreenLog 
         "the maximum amount of memory set in GB, the modes of authentication enabled, the level of auditing enabled." | Update-ScreenLog
         
